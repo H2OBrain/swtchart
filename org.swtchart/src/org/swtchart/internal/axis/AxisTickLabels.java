@@ -26,6 +26,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.wb.swt.SWTResourceManager;
 import org.swtchart.Chart;
 import org.swtchart.IAxis.Position;
 import org.swtchart.internal.ChartLayoutData;
@@ -100,15 +101,15 @@ public class AxisTickLabels implements PaintListener {
         this.chart = chart;
         this.axis = axis;
 
-        tickLabelValues = new ArrayList<Double>();
-        tickLabels = new ArrayList<String>();
-        tickLabelPositions = new ArrayList<Integer>();
-        tickVisibilities = new ArrayList<Boolean>();
+        tickLabelValues = new ArrayList<>();
+        tickLabels = new ArrayList<>();
+        tickLabelPositions = new ArrayList<>();
+        tickVisibilities = new ArrayList<>();
 
         initializePossibleTickSteps();
 
         font = DEFAULT_FONT;
-        foreground = Display.getDefault().getSystemColor(DEFAULT_FOREGROUND);
+        foreground = SWTResourceManager.getColor(DEFAULT_FOREGROUND);
         chart.addPaintListener(this);
     }
 
@@ -125,7 +126,7 @@ public class AxisTickLabels implements PaintListener {
         final Integer[] months = { 1, 2, 3, 4, 6, 11 };
         final Integer[] years = { 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000 };
 
-        possibleTickSteps = new HashMap<Integer, Integer[]>();
+        possibleTickSteps = new HashMap<>();
         possibleTickSteps.put(Calendar.MILLISECOND, milliseconds);
         possibleTickSteps.put(Calendar.SECOND, seconds);
         possibleTickSteps.put(Calendar.MINUTE, minutes);
@@ -143,8 +144,7 @@ public class AxisTickLabels implements PaintListener {
      */
     public void setForeground(Color color) {
         if (color == null) {
-            foreground = Display.getDefault()
-                    .getSystemColor(DEFAULT_FOREGROUND);
+            foreground = SWTResourceManager.getColor(DEFAULT_FOREGROUND);
         } else {
             foreground = color;
         }
@@ -157,8 +157,7 @@ public class AxisTickLabels implements PaintListener {
      */
     protected Color getForeground() {
         if (foreground.isDisposed()) {
-            foreground = Display.getDefault()
-                    .getSystemColor(DEFAULT_FOREGROUND);
+            foreground = SWTResourceManager.getColor(DEFAULT_FOREGROUND);
         }
         return foreground;
     }

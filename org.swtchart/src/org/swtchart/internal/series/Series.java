@@ -125,7 +125,7 @@ abstract public class Series implements ISeries {
         xErrorBar = new ErrorBar();
         yErrorBar = new ErrorBar();
         visibleInLegend = true;
-        listeners = new ArrayList<IDisposeListener>();
+        listeners = new ArrayList<>();
         xSeries = new double[0];
         ySeries = new double[0];
     }

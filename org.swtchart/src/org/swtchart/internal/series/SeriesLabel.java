@@ -14,6 +14,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.wb.swt.SWTResourceManager;
 import org.swtchart.ISeriesLabel;
 import org.swtchart.internal.Util;
 
@@ -52,7 +53,7 @@ public class SeriesLabel implements ISeriesLabel {
      */
     public SeriesLabel() {
         font = DEFAULT_FONT;
-        color = Display.getDefault().getSystemColor(DEFAULT_COLOR);
+        color = SWTResourceManager.getColor(DEFAULT_COLOR);
         isVisible = false;
         format = DEFAULT_FORMAT;
         formats = new String[0];
@@ -115,7 +116,7 @@ public class SeriesLabel implements ISeriesLabel {
         }
 
         if (color == null) {
-            this.color = Display.getDefault().getSystemColor(DEFAULT_COLOR);
+            this.color = SWTResourceManager.getColor(DEFAULT_COLOR);
         } else {
             this.color = color;
         }

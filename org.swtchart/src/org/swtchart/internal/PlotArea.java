@@ -16,7 +16,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.wb.swt.SWTResourceManager;
 import org.swtchart.Chart;
 import org.swtchart.IAxis;
 import org.swtchart.IBarSeries;
@@ -59,9 +59,9 @@ public class PlotArea extends Composite implements PaintListener, IPlotArea {
         this.chart = chart;
 
         seriesSet = new SeriesSet(chart);
-        paintListeners = new ArrayList<ICustomPaintListener>();
+        paintListeners = new ArrayList<>();
 
-        setBackground(Display.getDefault().getSystemColor(DEFAULT_BACKGROUND));
+        setBackground(SWTResourceManager.getColor(DEFAULT_BACKGROUND));
         addPaintListener(this);
     }
 
@@ -89,8 +89,7 @@ public class PlotArea extends Composite implements PaintListener, IPlotArea {
     @Override
     public void setBackground(Color color) {
         if (color == null) {
-            super.setBackground(Display.getDefault().getSystemColor(
-                    DEFAULT_BACKGROUND));
+            super.setBackground(SWTResourceManager.getColor(DEFAULT_BACKGROUND));
         } else {
             super.setBackground(color);
         }

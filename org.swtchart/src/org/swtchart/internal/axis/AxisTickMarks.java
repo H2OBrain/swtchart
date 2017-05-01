@@ -14,7 +14,7 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.wb.swt.SWTResourceManager;
 import org.swtchart.Chart;
 import org.swtchart.IAxis.Position;
 import org.swtchart.internal.ChartLayoutData;
@@ -63,7 +63,7 @@ public class AxisTickMarks implements PaintListener {
         this.chart = chart;
         this.axis = axis;
 
-        foreground = Display.getDefault().getSystemColor(DEFAULT_FOREGROUND);
+        foreground = SWTResourceManager.getColor(DEFAULT_FOREGROUND);
         chart.addPaintListener(this);
     }
 
@@ -75,8 +75,7 @@ public class AxisTickMarks implements PaintListener {
      */
     public void setForeground(Color color) {
         if (color == null) {
-            foreground = Display.getDefault()
-                    .getSystemColor(DEFAULT_FOREGROUND);
+            foreground = SWTResourceManager.getColor(DEFAULT_FOREGROUND);
         } else {
             foreground = color;
         }
@@ -89,8 +88,7 @@ public class AxisTickMarks implements PaintListener {
      */
     protected Color getForeground() {
         if (foreground.isDisposed()) {
-            foreground = Display.getDefault()
-                    .getSystemColor(DEFAULT_FOREGROUND);
+            foreground = SWTResourceManager.getColor(DEFAULT_FOREGROUND);
         }
         return foreground;
     }

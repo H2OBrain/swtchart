@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.wb.swt.SWTResourceManager;
 import org.swtchart.IGrid;
 import org.swtchart.LineStyle;
 import org.swtchart.internal.axis.Axis;
@@ -51,7 +51,7 @@ public class Grid implements IGrid {
     public Grid(Axis axis) {
         this.axis = axis;
 
-        color = Display.getDefault().getSystemColor(DEFAULT_FOREGROUND);
+        color = SWTResourceManager.getColor(DEFAULT_FOREGROUND);
         lineStyle = DEFAULT_STYLE;
         isVisible = true;
     }
@@ -61,7 +61,7 @@ public class Grid implements IGrid {
      */
     public Color getForeground() {
         if (color.isDisposed()) {
-            color = Display.getDefault().getSystemColor(DEFAULT_FOREGROUND);
+            color = SWTResourceManager.getColor(DEFAULT_FOREGROUND);
         }
         return color;
     }
@@ -75,8 +75,7 @@ public class Grid implements IGrid {
         }
 
         if (color == null) {
-            this.color = Display.getDefault()
-                    .getSystemColor(DEFAULT_FOREGROUND);
+            this.color = SWTResourceManager.getColor(DEFAULT_FOREGROUND);
         } else {
             this.color = color;
         }

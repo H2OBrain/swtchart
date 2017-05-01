@@ -21,7 +21,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.wb.swt.SWTResourceManager;
 import org.swtchart.Chart;
 import org.swtchart.Constants;
 import org.swtchart.IBarSeries;
@@ -55,12 +55,10 @@ public class Legend extends Composite implements ILegend, PaintListener {
     private static final int LINE_WIDTH = 2;
 
     /** the default foreground */
-    private static final Color DEFAULT_FOREGROUND = Display.getDefault()
-            .getSystemColor(SWT.COLOR_BLACK);
+    private static final Color DEFAULT_FOREGROUND = SWTResourceManager.getColor(SWT.COLOR_BLACK);
 
     /** the default background */
-    private static final Color DEFAULT_BACKGROUND = Display.getDefault()
-            .getSystemColor(SWT.COLOR_WHITE);
+    private static final Color DEFAULT_BACKGROUND = SWTResourceManager.getColor(SWT.COLOR_WHITE);
 
     /** the default font */
     private Font defaultFont;
@@ -88,9 +86,10 @@ public class Legend extends Composite implements ILegend, PaintListener {
 
         visible = true;
         position = DEFAULT_POSITION;
-        cellBounds = new HashMap<String, Rectangle>();
-        defaultFont = new Font(Display.getDefault(), "Tahoma",
-                DEFAULT_FONT_SIZE, SWT.NORMAL);
+        cellBounds = new HashMap<>();
+//        defaultFont = new Font(Display.getDefault(), "Tahoma",
+//                DEFAULT_FONT_SIZE, SWT.NORMAL);
+        defaultFont = SWTResourceManager.getFont("Tahoma", DEFAULT_FONT_SIZE, SWT.NORMAL);
         setFont(defaultFont);
         setForeground(DEFAULT_FOREGROUND);
         setBackground(DEFAULT_BACKGROUND);
@@ -191,9 +190,9 @@ public class Legend extends Composite implements ILegend, PaintListener {
     @Override
     public void dispose() {
         super.dispose();
-        if (!defaultFont.isDisposed()) {
-            defaultFont.dispose();
-        }
+//        if (!defaultFont.isDisposed()) {
+//            defaultFont.dispose();
+//        }
     }
 
     /**
@@ -212,19 +211,19 @@ public class Legend extends Composite implements ILegend, PaintListener {
     private ISeries[] sort(ISeries[] seriesArray) {
 
         // create a map between axis id and series list
-        Map<Integer, List<ISeries>> map = new HashMap<Integer, List<ISeries>>();
+        Map<Integer, List<ISeries>> map = new HashMap<>();
         for (ISeries series : seriesArray) {
             int axisId = series.getXAxisId();
             List<ISeries> list = map.get(axisId);
             if (list == null) {
-                list = new ArrayList<ISeries>();
+                list = new ArrayList<>();
             }
             list.add(series);
             map.put(axisId, list);
         }
 
         // sort an each series list
-        List<ISeries> sortedArray = new ArrayList<ISeries>();
+        List<ISeries> sortedArray = new ArrayList<>();
         boolean isVertical = chart.getOrientation() == SWT.VERTICAL;
         for (Entry<Integer, List<ISeries>> entry : map.entrySet()) {
             boolean isCategoryEnabled = chart.getAxisSet()
@@ -255,7 +254,7 @@ public class Legend extends Composite implements ILegend, PaintListener {
      */
     private static List<ISeries> sort(List<ISeries> seriesList,
             boolean isCategoryEnabled, boolean isVertical) {
-        List<ISeries> sortedArray = new ArrayList<ISeries>();
+        List<ISeries> sortedArray = new ArrayList<>();
 
         // gather the stacked series reversing the order of stack series
         int insertIndex = -1;
@@ -437,7 +436,7 @@ public class Legend extends Composite implements ILegend, PaintListener {
         gc.fillRectangle(0, 0, getSize().x - 1, getSize().y - 1);
         gc.setLineStyle(SWT.LINE_SOLID);
         gc.setLineWidth(1);
-        gc.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_GRAY));
+        gc.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
         gc.drawRectangle(0, 0, getSize().x - 1, getSize().y - 1);
 
         // draw content

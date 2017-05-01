@@ -12,7 +12,7 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.wb.swt.SWTResourceManager;
 import org.swtchart.Chart;
 import org.swtchart.IAxis.Direction;
 import org.swtchart.ILineSeries;
@@ -97,11 +97,11 @@ public class LineSeries extends Series implements ILineSeries {
         super(chart, id);
 
         symbolSize = 4;
-        symbolColor = Display.getDefault().getSystemColor(DEFAULT_SYMBOL_COLOR);
+        symbolColor = SWTResourceManager.getColor(DEFAULT_SYMBOL_COLOR);
         symbolType = DEFAULT_SYMBOL_TYPE;
 
         lineStyle = DEFAULT_LINE_STYLE;
-        lineColor = Display.getDefault().getSystemColor(DEFAULT_LINE_COLOR);
+        lineColor = SWTResourceManager.getColor(DEFAULT_LINE_COLOR);
 
         areaEnabled = false;
 
@@ -140,7 +140,7 @@ public class LineSeries extends Series implements ILineSeries {
      */
     public Color getLineColor() {
         if (lineColor.isDisposed()) {
-            lineColor = Display.getDefault().getSystemColor(DEFAULT_LINE_COLOR);
+            lineColor = SWTResourceManager.getColor(DEFAULT_LINE_COLOR);
         }
         return lineColor;
     }
@@ -154,8 +154,7 @@ public class LineSeries extends Series implements ILineSeries {
         }
 
         if (color == null) {
-            this.lineColor = Display.getDefault().getSystemColor(
-                    DEFAULT_LINE_COLOR);
+            this.lineColor = SWTResourceManager.getColor(DEFAULT_LINE_COLOR);
         } else {
             this.lineColor = color;
         }
@@ -231,8 +230,7 @@ public class LineSeries extends Series implements ILineSeries {
         }
 
         if (color == null) {
-            this.symbolColor = Display.getDefault().getSystemColor(
-                    DEFAULT_SYMBOL_COLOR);
+            this.symbolColor = SWTResourceManager.getColor(DEFAULT_SYMBOL_COLOR);
         } else {
             this.symbolColor = color;
         }
@@ -594,7 +592,7 @@ public class LineSeries extends Series implements ILineSeries {
         double yLower = yAxis.getRange().lower;
         double yUpper = yAxis.getRange().upper;
 
-        List<Integer> pointList = new ArrayList<Integer>();
+        List<Integer> pointList = new ArrayList<>();
         int prevX = xAxis.getPixelCoordinate(xseries[0], xLower, xUpper);
         int prevY = yAxis.getPixelCoordinate(yseries[0], yLower, yUpper);
 

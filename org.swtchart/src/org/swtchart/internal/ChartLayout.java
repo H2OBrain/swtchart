@@ -103,7 +103,7 @@ public class ChartLayout extends Layout {
      */
     public ChartLayout() {
         initWidgetSizeVariables();
-        axisLayoutDataMap = new HashMap<Axis, AxisLayoutData>();
+        axisLayoutDataMap = new HashMap<>();
     }
 
     /**

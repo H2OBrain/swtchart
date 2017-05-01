@@ -19,6 +19,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.TextLayout;
 import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.wb.swt.SWTResourceManager;
 import org.swtchart.Chart;
 import org.swtchart.Constants;
 import org.swtchart.ITitle;
@@ -79,12 +80,13 @@ public class Title implements ITitle, PaintListener {
         text = DEFAULT_TEXT;
         isVisible = true;
 
-        defaultFont = new Font(Display.getDefault(), "Tahoma",
-                DEFAULT_FONT_SIZE, SWT.BOLD);
+//        defaultFont = new Font(Display.getDefault(), "Tahoma",
+//                DEFAULT_FONT_SIZE, SWT.BOLD);
+        defaultFont = SWTResourceManager.getFont("Tahoma", DEFAULT_FONT_SIZE, SWT.BOLD);
         textLayout = new TextLayout(Display.getDefault());
         bounds = new Rectangle(0, 0, 0, 0);
         font = defaultFont;
-        setForeground(Display.getDefault().getSystemColor(DEFAULT_FOREGROUND));
+        setForeground(SWTResourceManager.getColor(DEFAULT_FOREGROUND));
 
         parent.addPaintListener(this);
     }
@@ -159,8 +161,7 @@ public class Title implements ITitle, PaintListener {
      */
     public void setForeground(Color color) {
         if (color == null) {
-            foreground = Display.getDefault()
-                    .getSystemColor(DEFAULT_FOREGROUND);
+            foreground = SWTResourceManager.getColor(DEFAULT_FOREGROUND);
         } else if (color.isDisposed()) {
             throw new IllegalArgumentException("disposed color is given");
         } else {
@@ -279,9 +280,9 @@ public class Title implements ITitle, PaintListener {
      * Disposes the resources.
      */
     public void dispose() {
-        if (!defaultFont.isDisposed()) {
-            defaultFont.dispose();
-        }
+//        if (!defaultFont.isDisposed()) {
+//            defaultFont.dispose();
+//        }
         if (!textLayout.isDisposed()) {
             textLayout.dispose();
         }

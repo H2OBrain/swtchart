@@ -8,7 +8,7 @@ package org.swtchart.internal.axis;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.wb.swt.SWTResourceManager;
 import org.swtchart.Chart;
 import org.swtchart.Constants;
 import org.swtchart.IAxis.Direction;
@@ -53,8 +53,9 @@ public class AxisTitle extends Title {
         super(chart);
         this.axis = axis;
         this.direction = direction;
-        defaultFont = new Font(Display.getDefault(), "Tahoma",
-                DEFAULT_FONT_SIZE, SWT.BOLD);
+//        defaultFont = new Font(Display.getDefault(), "Tahoma",
+//                DEFAULT_FONT_SIZE, SWT.BOLD);
+        defaultFont = SWTResourceManager.getFont("Tahoma", DEFAULT_FONT_SIZE, SWT.BOLD);
         setFont(defaultFont);
         setText(getDefaultText());
     }
@@ -84,8 +85,8 @@ public class AxisTitle extends Title {
     @Override
     public void dispose() {
         super.dispose();
-        if (!defaultFont.isDisposed()) {
-            defaultFont.dispose();
-        }
+//        if (!defaultFont.isDisposed()) {
+//            defaultFont.dispose();
+//        }
     }
 }

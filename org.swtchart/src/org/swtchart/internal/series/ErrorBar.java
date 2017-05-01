@@ -9,7 +9,7 @@ package org.swtchart.internal.series;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.wb.swt.SWTResourceManager;
 import org.swtchart.IErrorBar;
 import org.swtchart.internal.axis.Axis;
 
@@ -55,7 +55,7 @@ public class ErrorBar implements IErrorBar {
      * The constructor.
      */
     public ErrorBar() {
-        color = Display.getDefault().getSystemColor(DEFAULT_COLOR);
+        color = SWTResourceManager.getColor(DEFAULT_COLOR);
         lineWidth = DEFAULT_LINE_WIDTH;
         error = DEFAULT_ERROR;
         type = ErrorBarType.BOTH;
@@ -87,7 +87,7 @@ public class ErrorBar implements IErrorBar {
      */
     public Color getColor() {
         if (color.isDisposed()) {
-            color = Display.getDefault().getSystemColor(DEFAULT_COLOR);
+            color = SWTResourceManager.getColor(DEFAULT_COLOR);
         }
         return color;
     }
@@ -101,7 +101,7 @@ public class ErrorBar implements IErrorBar {
         }
 
         if (color == null) {
-            this.color = Display.getDefault().getSystemColor(DEFAULT_COLOR);
+            this.color = SWTResourceManager.getColor(DEFAULT_COLOR);
         } else {
             this.color = color;
         }

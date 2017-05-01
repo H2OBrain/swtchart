@@ -44,7 +44,7 @@ public class SeriesSet implements ISeriesSet {
     public SeriesSet(Chart chart) {
         this.chart = chart;
 
-        seriesMap = new LinkedHashMap<String, Series>();
+        seriesMap = new LinkedHashMap<>();
     }
 
     /*
@@ -142,7 +142,7 @@ public class SeriesSet implements ISeriesSet {
     	String trimmedId = validateSeriesId(id);
 
         String seriesId = null;
-        LinkedHashMap<String, Series> newSeriesMap = new LinkedHashMap<String, Series>();
+        LinkedHashMap<String, Series> newSeriesMap = new LinkedHashMap<>();
         for (Entry<String, Series> entry : seriesMap.entrySet()) {
 
             if (entry.getKey().equals(trimmedId)) {
@@ -187,7 +187,7 @@ public class SeriesSet implements ISeriesSet {
     	String trimmedId = validateSeriesId(id);
 
         String seriesId = null;
-        LinkedHashMap<String, Series> newSeriesMap = new LinkedHashMap<String, Series>();
+        LinkedHashMap<String, Series> newSeriesMap = new LinkedHashMap<>();
         for (Entry<String, Series> entry : seriesMap.entrySet()) {
 
             if (!entry.getKey().equals(trimmedId) || seriesId == null) {
@@ -212,7 +212,7 @@ public class SeriesSet implements ISeriesSet {
     public void sendToBack(String id) {
     	String trimmedId = validateSeriesId(id);
 
-        LinkedHashMap<String, Series> newSeriesMap = new LinkedHashMap<String, Series>();
+        LinkedHashMap<String, Series> newSeriesMap = new LinkedHashMap<>();
         newSeriesMap.put(trimmedId, seriesMap.get(trimmedId));
         for (Entry<String, Series> entry : seriesMap.entrySet()) {
             if (!entry.getKey().equals(trimmedId)) {

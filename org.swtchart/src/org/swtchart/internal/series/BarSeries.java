@@ -11,7 +11,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.wb.swt.SWTResourceManager;
 import org.swtchart.Chart;
 import org.swtchart.IAxis.Direction;
 import org.swtchart.IBarSeries;
@@ -66,7 +66,7 @@ public class BarSeries extends Series implements IBarSeries {
     protected BarSeries(Chart chart, String id) {
         super(chart, id);
 
-        barColor = Display.getDefault().getSystemColor(DEFAULT_BAR_COLOR);
+        barColor = SWTResourceManager.getColor(DEFAULT_BAR_COLOR);
         barWidthStyle = BarWidthStyle.STRETCHED;
         barWidth = INITIAL_PADDING;
         padding = INITIAL_PADDING;
@@ -128,7 +128,7 @@ public class BarSeries extends Series implements IBarSeries {
      */
     public Color getBarColor() {
         if (barColor.isDisposed()) {
-            barColor = Display.getDefault().getSystemColor(DEFAULT_BAR_COLOR);
+            barColor = SWTResourceManager.getColor(DEFAULT_BAR_COLOR);
         }
         return barColor;
     }
@@ -142,8 +142,7 @@ public class BarSeries extends Series implements IBarSeries {
         }
 
         if (color == null) {
-            this.barColor = Display.getDefault().getSystemColor(
-                    DEFAULT_BAR_COLOR);
+            this.barColor = SWTResourceManager.getColor(DEFAULT_BAR_COLOR);
         } else {
             this.barColor = color;
         }
@@ -505,7 +504,7 @@ public class BarSeries extends Series implements IBarSeries {
         gc.setForeground(frameColor);
         
         gc.drawRectangle(h, v, width, height);
-        frameColor.dispose();
+//        frameColor.dispose();
 
         gc.setAlpha(alpha);
         gc.setBackground(oldBackground);
