@@ -8,43 +8,48 @@ package org.swtchart.internal.compress;
 
 import java.util.ArrayList;
 
+import org.swtchart.internal.series.XYdata;
+
 /**
  * A compressor for bar series data.
  */
 public class CompressBarSeries extends Compress {
 
     /*
-     * @see Compress#addNecessaryPlots(ArrayList, ArrayList, ArrayList)
+     * @see Compress#addNecessaryPlots(ArrayList, ArrayList)
      */
     @Override
-    protected void addNecessaryPlots(ArrayList<Double> xList,
-            ArrayList<Double> yList, ArrayList<Integer> indexList) {
+    protected void addNecessaryPlots(ArrayList<XYdata> list, ArrayList<Integer> indexList) {
 
-        double prevX = xSeries[0];
+        double prevX = series.get(0).x;
         double maxY = Double.NaN;
         int prevIndex = 0;
 
-        for (int i = 0; i < xSeries.length && i < ySeries.length; i++) {
-            if (xSeries[i] >= config.getXLowerValue()) {
-                if (isInSameGridXAsPrevious(xSeries[i])) {
-                    if (maxY < ySeries[i]) {
-                        maxY = ySeries[i];
+        int i = 0;
+        for (XYdata p : list) {
+        //for (int i = 0; i < xSeries.length && i < ySeries.length; i++) {
+            if (p.x >= config.getXLowerValue()) {
+                if (isInSameGridXAsPrevious(p.x)) {
+                    if (maxY < p.y) {
+                        maxY = p.y;
                     }
                 } else {
                     if (!Double.isNaN(maxY)) {
-                        addToList(xList, yList, indexList, prevX, maxY, prevIndex);
+                        addToList(list, indexList, prevX, maxY, prevIndex);
                     }
-                    prevX = xSeries[i];
-                    maxY = ySeries[i];
+                    prevX = p.x;
+                    maxY = p.y;
                     prevIndex = i;
                 }
             }
 
-            if (xSeries[i] > config.getXUpperValue()) {
+            if (p.x > config.getXUpperValue()) {
                 break;
             }
+            
+            i++;
         }
-        addToList(xList, yList, indexList, prevX, maxY, prevIndex);
+        addToList(list, indexList, prevX, maxY, prevIndex);
     }
 
     /**

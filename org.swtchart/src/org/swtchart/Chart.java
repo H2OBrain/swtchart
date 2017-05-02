@@ -340,16 +340,19 @@ public class Chart extends Composite implements Listener {
         super.dispose();
     }
 
-    /*
-     * @see Control#redraw()
-     */
-    @Override
-    public void redraw() {
-        super.redraw();
-        for (Control child : getChildren()) {
-            child.redraw();
-        }
-    }
+    /* not needed (only tested with GTK3) */
+//    /*
+//     * @see Control#redraw()
+//     */
+//    @Override
+//    public void redraw() {
+////        super.redraw();
+//    	for (Control child : getChildren()) {
+////            if (child instanceof PlotArea) child.redraw();
+////            if (child instanceof Legend)   child.redraw();
+////    		child.redraw();
+//        }
+//    }
 
     /**
      * Saves to file with given format.

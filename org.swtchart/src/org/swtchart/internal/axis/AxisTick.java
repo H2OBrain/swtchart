@@ -14,8 +14,8 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Rectangle;
 import org.swtchart.Chart;
-import org.swtchart.IAxisTick;
 import org.swtchart.IAxis.Position;
+import org.swtchart.IAxisTick;
 
 /**
  * An axis tick.

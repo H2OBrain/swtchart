@@ -7,6 +7,7 @@
 package org.swtchart.internal.series;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -336,13 +337,18 @@ public class SeriesSet implements ISeriesSet {
                 if (categorySeries == null) {
                     continue;
                 }
-                double[] xSeries = new double[categorySeries.length];
-                for (int i = 0; i < xSeries.length; i++) {
-                    xSeries[i] = i;
+                ArrayList<XYdata> oseries = series.getSeries();
+                ArrayList<XYdata> cseries = new ArrayList<>(categorySeries.length);
+                for (int i = 0; i < categorySeries.length; i++) {
+                	if (oseries.size()>i) {
+                		cseries.add(new XYdata(i, oseries.get(i).y));
+                	} else {
+                		cseries.add(new XYdata(i, 0)); // TODO newly added hack!
+                	}
                 }
-                compressor.setXSeries(xSeries);
-            } else if (((Series) series).getXSeries() != null) {
-                compressor.setXSeries(((Series) series).getXSeries());
+                compressor.setSeries(cseries);
+            } else if (((Series) series).getSeries() != null) { // FIXME is never null!
+                compressor.setSeries(((Series) series).getSeries());
             }
         }
         compressAllSeries();
@@ -430,17 +436,18 @@ public class SeriesSet implements ISeriesSet {
      *            the series
      */
     private static void setStackSeries(double[] stackSeries, ISeries series) {
-        double[] ySeries = series.getYSeries();
-        if (ySeries == null || stackSeries == null) {
+        ArrayList<XYdata> oseries = series.getSeries();
+        if (oseries == null || stackSeries == null) {
             return;
         }
 
+        // TODO optimize
         for (int i = 0; i < stackSeries.length; i++) {
-            if (i >= ySeries.length) {
+            if (i >= oseries.size()) {
                 break;
             }
             stackSeries[i] = BigDecimal.valueOf(stackSeries[i])
-                    .add(BigDecimal.valueOf(ySeries[i])).doubleValue();
+                    .add(BigDecimal.valueOf(oseries.get(i).y)).doubleValue();
         }
         double[] copiedStackSeries = new double[stackSeries.length];
         System.arraycopy(stackSeries, 0, copiedStackSeries, 0,

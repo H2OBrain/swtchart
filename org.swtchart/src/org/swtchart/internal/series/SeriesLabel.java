@@ -177,7 +177,7 @@ public class SeriesLabel implements ISeriesLabel {
      *            the alignment of label position (SWT.CENTER or SWT.BOTTOM)
      */
     protected void draw(GC gc, int h, int v, double ySeriesValue,
-            int seriesIndex, int alignment) {
+            int seriesIndex, int h_alignment, int v_alignment) {
         if (!isVisible) {
             return;
         }
@@ -204,13 +204,36 @@ public class SeriesLabel implements ISeriesLabel {
         }
 
         // draw label
-        if (alignment == SWT.CENTER) {
+        if (!((h_alignment == SWT.RIGHT)
+         && (v_alignment == SWT.BOTTOM))) {
             Point p = Util.getExtentInGC(font, text);
-            gc.drawString(text, (int) (h - p.x / 2d), (int) (v - p.y / 2d),
-                    true);
-        } else if (alignment == SWT.BOTTOM) {
-            gc.drawString(text, h, v, true);
+            switch (h_alignment) {
+	            case SWT.LEFT :
+	            	h -= p.x;
+	            	break;
+	            case SWT.CENTER :
+	            	h  = (int) (h - p.x / 2d);
+	            	break;
+	            case SWT.RIGHT :
+	            	break;
+	            default :
+	            	throw new IllegalArgumentException();
+            }
+            switch (v_alignment) {
+	            case SWT.TOP :
+	            	v -= p.y;
+	            	break;
+	            case SWT.CENTER :
+	            	v  = (int) (v - p.y / 2d);
+	            	break;
+	            case SWT.BOTTOM :
+	            	break;
+	            default :
+	            	throw new IllegalArgumentException();
+	        }
         }
+        
+        gc.drawString(text, h, v, true);
 
         gc.setForeground(oldForeground);
     }

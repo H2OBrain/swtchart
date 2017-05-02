@@ -305,7 +305,7 @@ public class Axis implements IAxis {
     private double getMinSeriesValue() {
         double minimum = Double.NaN;
         for (ISeries series : chart.getSeriesSet().getSeries()) {
-            if (series.getYSeries().length == 0) {
+            if (series.getSeries().size() == 0) {
                 continue;
             }
 
@@ -796,19 +796,18 @@ public class Axis implements IAxis {
      * @return true if date is enabled
      */
     public boolean isDateEnabled() {
-        if (!isHorizontalAxis) {
-            return false;
-        }
-
-        for (ISeries series : chart.getSeriesSet().getSeries()) {
-            if (series.getXAxisId() != id) {
-                continue;
-            }
-
-            if (((Series) series).isDateSeries() && series.isVisible()) {
-                return true;
-            }
-        }
+//        if (!isHorizontalAxis) {
+//            return false;
+//        }
+//
+//        for (ISeries series : chart.getSeriesSet().getSeries()) {
+//            if (series.getXAxisId() != id) {
+//                continue;
+//            }
+//            if (((Series) series).isDateSeries() && series.isVisible()) {
+//                return true;
+//            }
+//        }
         return false;
     }
 }

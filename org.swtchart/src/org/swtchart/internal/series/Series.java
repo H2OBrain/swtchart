@@ -7,7 +7,6 @@
 package org.swtchart.internal.series;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -16,12 +15,12 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Event;
 import org.swtchart.Chart;
 import org.swtchart.IAxis;
+import org.swtchart.IAxis.Direction;
 import org.swtchart.IDisposeListener;
 import org.swtchart.IErrorBar;
 import org.swtchart.ISeries;
 import org.swtchart.ISeriesLabel;
 import org.swtchart.Range;
-import org.swtchart.IAxis.Direction;
 import org.swtchart.internal.axis.Axis;
 import org.swtchart.internal.compress.ICompress;
 
@@ -33,11 +32,8 @@ abstract public class Series implements ISeries {
     /** the default series type */
     protected static final SeriesType DEFAULT_SERIES_TYPE = SeriesType.LINE;
 
-    /** the x series */
-    protected double[] xSeries;
-
-    /** the y series */
-    protected double[] ySeries;
+    /** the series */
+    protected ArrayList<XYdata> series;
 
     /** the minimum value of x series */
     protected double minX;
@@ -90,8 +86,8 @@ abstract public class Series implements ISeries {
     /** the stack series */
     protected double[] stackSeries;
 
-    /** the state indicating if the type of X series is <tt>Date</tt> */
-    private boolean isDateSeries;
+//    /** the state indicating if the type of X series is <tt>Date</tt> */
+//    private boolean isDateSeries;
 
     /** the state indicating if the series is visible in legend */
     private boolean visibleInLegend;
@@ -126,8 +122,7 @@ abstract public class Series implements ISeries {
         yErrorBar = new ErrorBar();
         visibleInLegend = true;
         listeners = new ArrayList<>();
-        xSeries = new double[0];
-        ySeries = new double[0];
+        series = new ArrayList<>();
     }
 
     /*
@@ -190,105 +185,60 @@ abstract public class Series implements ISeries {
     }
 
     /*
-     * @see ISeries#setXSeries(double[])
+     * @see ISeries#setSeries(ArrayList<XYdata>)
      */
-    public void setXSeries(double[] series) {
+    public void setSeries(ArrayList<XYdata> series) {
 
         if (series == null) {
             SWT.error(SWT.ERROR_NULL_ARGUMENT);
             return; // to suppress warning...
         }
+        
+        this.series = series;
+        
+        invalidateData();
+    }
+    /*
+     * @see ISeries#invalidateData()
+     */
+    public void invalidateData() {
+//        isDateSeries = false;
 
-        xSeries = new double[series.length];
-        System.arraycopy(series, 0, xSeries, 0, series.length);
-        isDateSeries = false;
-
-        if (xSeries.length == 0) {
+        if (series.size() == 0) {
             return;
         }
 
         // find the min and max value of x series
-        minX = xSeries[0];
-        maxX = xSeries[0];
-        for (int i = 1; i < xSeries.length; i++) {
-            if (minX > xSeries[i]) {
-                minX = xSeries[i];
+        minX = series.get(0).x;
+        maxX = series.get(0).x;
+        minY = series.get(0).y;
+        maxY = series.get(0).y;
+        
+        isXMonotoneIncreasing = true;
+        double lastX = maxX;
+        for (XYdata p : series) {
+            if (minX > p.x) {
+                minX = p.x;
             }
-            if (maxX < xSeries[i]) {
-                maxX = xSeries[i];
+            if (maxX < p.x) {
+                maxX = p.x;
             }
 
-            if (xSeries[i - 1] > xSeries[i]) {
+            if (lastX > p.x) {
                 isXMonotoneIncreasing = false;
             }
+            lastX = p.x;
+            
+            if (minY > p.y) {
+                minY = p.y;
+            }
+            if (maxY < p.y) {
+                maxY = p.y;
+            }
         }
 
         setCompressor();
-
-        compressor.setXSeries(xSeries);
-        compressor.setYSeries(ySeries);
-
-        if (minX <= 0) {
-            IAxis axis = chart.getAxisSet().getXAxis(xAxisId);
-            if (axis != null) {
-                axis.enableLogScale(false);
-            }
-        }
-    }
-
-    /*
-     * @see ISeries#getXSeries()
-     */
-    public double[] getXSeries() {
-        double[] copiedSeries = new double[xSeries.length];
-        System.arraycopy(xSeries, 0, copiedSeries, 0, xSeries.length);
-
-        return copiedSeries;
-    }
-
-    /*
-     * @see ISeries#setYSeries(double[])
-     */
-    public void setYSeries(double[] series) {
-
-        if (series == null) {
-            SWT.error(SWT.ERROR_NULL_ARGUMENT);
-            return; // to suppress warning...
-        }
-
-        ySeries = new double[series.length];
-        System.arraycopy(series, 0, ySeries, 0, series.length);
-
-        if (ySeries.length == 0) {
-            return;
-        }
-
-        // find the min and max value of y series
-        minY = ySeries[0];
-        maxY = ySeries[0];
-        for (int i = 1; i < ySeries.length; i++) {
-            if (minY > ySeries[i]) {
-                minY = ySeries[i];
-            }
-            if (maxY < ySeries[i]) {
-                maxY = ySeries[i];
-            }
-        }
-
-        if (xSeries.length != series.length) {
-            xSeries = new double[series.length];
-            for (int i = 0; i < series.length; i++) {
-                xSeries[i] = i;
-            }
-            minX = xSeries[0];
-            maxX = xSeries[xSeries.length - 1];
-            isXMonotoneIncreasing = true;
-        }
-
-        setCompressor();
-
-        compressor.setXSeries(xSeries);
-        compressor.setYSeries(ySeries);
+        compressor.setSeries(series);
 
         if (minX <= 0) {
             IAxis axis = chart.getAxisSet().getXAxis(xAxisId);
@@ -306,55 +256,52 @@ abstract public class Series implements ISeries {
     }
 
     /*
-     * @see ISeries#getYSeries()
+     * @see ISeries#getSeries()
      */
-    public double[] getYSeries() {
-        double[] copiedSeries = new double[ySeries.length];
-        System.arraycopy(ySeries, 0, copiedSeries, 0, ySeries.length);
-
-        return copiedSeries;
-    }
-
-    /*
-     * @see ISeries#setXDateSeries(Date[])
-     */
-    public void setXDateSeries(Date[] series) {
-        if (series == null) {
-            SWT.error(SWT.ERROR_NULL_ARGUMENT);
-            return; // to suppress warning...
-        }
-
-        double[] xDateSeries = new double[series.length];
-        for (int i = 0; i < series.length; i++) {
-            xDateSeries[i] = series[i].getTime();
-        }
-        setXSeries(xDateSeries);
-        isDateSeries = true;
-    }
-
-    /*
-     * @see ISeries#getXDateSeries()
-     */
-    public Date[] getXDateSeries() {
-        if (!isDateSeries) {
-            return new Date[0];
-        }
-
-        Date[] series = new Date[xSeries.length];
-        for (int i = 0; i < series.length; i++) {
-            series[i] = new Date((long) xSeries[i]);
-        }
+    public ArrayList<XYdata> getSeries() {
         return series;
     }
 
-    /**
-     * Gets the state indicating if date series is set.
-     *
-     * @return true if date series is set
-     */
-    public boolean isDateSeries() {
-        return isDateSeries;
-    }
+//    /*
+//     * @see ISeries#setXDateSeries(Date[])
+//     */
+//    public void setXDateSeries(Date[] series) {
+//        if (series == null) {
+//            SWT.error(SWT.ERROR_NULL_ARGUMENT);
+//            return; // to suppress warning...
+//        }
+//
+//        double[] xDateSeries = new double[series.length];
+//        for (int i = 0; i < series.length; i++) {
+//            xDateSeries[i] = series[i].getTime();
+//        }
+//        setXSeries(xDateSeries);
+//        isDateSeries = true;
+//    }
+//
+//    /*
+//     * @see ISeries#getXDateSeries()
+//     */
+//    public Date[] getXDateSeries() {
+//        if (!isDateSeries) {
+//            return new Date[0];
+//        }
+//
+//        Date[] series = new Date[series.length];
+//        for (int i = 0; i < series.length; i++) {
+//            series[i] = new Date((long) series[i]);
+//        }
+//        return series;
+//    }
+
+//    /**
+//     * Gets the state indicating if date series is set.
+//     *
+//     * @return true if date series is set
+//     */
+//    public boolean isDateSeries() {
+//        return isDateSeries;
+//    }
 
     /**
      * Gets the state indicating if the series is valid stack series.
@@ -535,11 +482,11 @@ abstract public class Series implements ISeries {
             if (axis.isCategoryEnabled()) {
                 dataCoordinate = index;
             } else {
-                if (index < 0 || xSeries.length <= index) {
+                if (index < 0 || series.size() <= index) {
                     throw new IllegalArgumentException(
                             "Series index is out of range."); //$NON-NLS-1$
                 }
-                dataCoordinate = xSeries[index];
+                dataCoordinate = series.get(index).x;
             }
         } else if (axis.getDirection() == Direction.Y) {
             if (isValidStackSeries()) {
@@ -549,11 +496,11 @@ abstract public class Series implements ISeries {
                 }
                 dataCoordinate = stackSeries[index];
             } else {
-                if (index < 0 || ySeries.length <= index) {
+                if (index < 0 || series.size() <= index) {
                     throw new IllegalArgumentException(
                             "Series index is out of range."); //$NON-NLS-1$
                 }
-                dataCoordinate = ySeries[index];
+                dataCoordinate = series.get(index).y;
             }
         } else {
             throw new IllegalStateException("unknown axis direction"); //$NON-NLS-1$
@@ -657,8 +604,7 @@ abstract public class Series implements ISeries {
      */
     public void draw(GC gc, int width, int height) {
 
-        if (!visible || width < 0 || height < 0 || xSeries.length == 0
-                || ySeries.length == 0) {
+        if (!visible || width < 0 || height < 0 || series.size() == 0) {
             return;
         }
 

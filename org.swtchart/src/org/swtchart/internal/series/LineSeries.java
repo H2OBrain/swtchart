@@ -349,10 +349,8 @@ public class LineSeries extends Series implements ILineSeries {
     /**
      * Gets the line points to draw line and area.
      *
-     * @param xseries
+     * @param series
      *            the horizontal series
-     * @param yseries
-     *            the vertical series
      * @param indexes
      *            the series indexes
      * @param index
@@ -363,15 +361,20 @@ public class LineSeries extends Series implements ILineSeries {
      *            the Y axis
      * @return the line points
      */
-    private int[] getLinePoints(double[] xseries, double[] yseries,
-            int[] indexes, int index, Axis xAxis, Axis yAxis) {
+    private int[] getLinePoints(ArrayList<XYdata> series,
+            ArrayList<Integer> indexes, int index, Axis xAxis, Axis yAxis) {
 
-        int x1 = xAxis.getPixelCoordinate(xseries[index]);
-        int x2 = xAxis.getPixelCoordinate(xseries[index + 1]);
+    	XYdata p  = series.get(index);
+    	XYdata p1 = series.get(index + 1);
+    	int idx   = indexes.get(index);
+    	int idx1  = indexes.get(index + 1);
+    	
+        int x1 = xAxis.getPixelCoordinate(p.x);
+        int x2 = xAxis.getPixelCoordinate(p1.x);
         int x3 = x2;
         int x4 = x1;
-        int y1 = yAxis.getPixelCoordinate(yseries[index]);
-        int y2 = yAxis.getPixelCoordinate(yseries[index + 1]);
+        int y1 = yAxis.getPixelCoordinate(p.y);
+        int y2 = yAxis.getPixelCoordinate(p1.y);
         int y3, y4;
 
         double baseYCoordinate = yAxis.getRange().lower > 0 ? yAxis.getRange().lower
@@ -381,14 +384,14 @@ public class LineSeries extends Series implements ILineSeries {
             y3 = yAxis.getPixelCoordinate(yAxis.getRange().lower);
             y4 = y3;
         } else if (isValidStackSeries()) {
-            y1 = yAxis.getPixelCoordinate(stackSeries[indexes[index]]);
-            y2 = yAxis.getPixelCoordinate(stackSeries[indexes[index + 1]]);
-            y3 = yAxis.getPixelCoordinate(stackSeries[indexes[index + 1]])
-                    + Math.abs(yAxis.getPixelCoordinate(yseries[index + 1])
+            y1 = yAxis.getPixelCoordinate(stackSeries[idx]);
+            y2 = yAxis.getPixelCoordinate(stackSeries[idx1]);
+            y3 = yAxis.getPixelCoordinate(stackSeries[idx1])
+                    + Math.abs(yAxis.getPixelCoordinate(p1.y)
                             - yAxis.getPixelCoordinate(0))
                     * (xAxis.isHorizontalAxis() ? 1 : -1);
-            y4 = yAxis.getPixelCoordinate(stackSeries[indexes[index]])
-                    + Math.abs(yAxis.getPixelCoordinate(yseries[index])
+            y4 = yAxis.getPixelCoordinate(stackSeries[idx])
+                    + Math.abs(yAxis.getPixelCoordinate(p.y)
                             - yAxis.getPixelCoordinate(0))
                     * (xAxis.isHorizontalAxis() ? 1 : -1);
         } else {
@@ -443,15 +446,14 @@ public class LineSeries extends Series implements ILineSeries {
             Axis yAxis) {
 
         // get x and y series
-        double[] xseries = compressor.getCompressedXSeries();
-        double[] yseries = compressor.getCompressedYSeries();
-        if (xseries.length == 0 || yseries.length == 0) {
+        ArrayList<XYdata> series = compressor.getCompressedSeries();
+        if (series.size() == 0 ) {
             return;
         }
-        int[] indexes = compressor.getCompressedIndexes();
+        ArrayList<Integer> indexes = compressor.getCompressedIndexes();
         if (xAxis.isValidCategoryAxis()) {
-            for (int i = 0; i < xseries.length; i++) {
-                xseries[i] = indexes[i];
+            for (int i = 0; i < series.size(); i++) { // TODO optimize
+                series.set(i, new XYdata(indexes.get(i), series.get(i).y));
             }
         }
 
@@ -461,8 +463,8 @@ public class LineSeries extends Series implements ILineSeries {
 
         boolean isHorizontal = xAxis.isHorizontalAxis();
         if (stepEnabled || areaEnabled || stackEnabled) {
-            for (int i = 0; i < xseries.length - 1; i++) {
-                int[] p = getLinePoints(xseries, yseries, indexes, i, xAxis,
+            for (int i = 0; i < series.size() - 1; i++) {
+                int[] p = getLinePoints(series, indexes, i, xAxis,
                         yAxis);
 
                 // draw line
@@ -487,9 +489,9 @@ public class LineSeries extends Series implements ILineSeries {
             }
         } else {
             if (lineStyle == LineStyle.SOLID) {
-                drawLine(gc, xAxis, yAxis, xseries, yseries, isHorizontal);
+                drawLine(gc, xAxis, yAxis, series, isHorizontal);
             } else if (lineStyle != LineStyle.NONE) {
-                drawLineWithStyle(gc, xAxis, yAxis, xseries, yseries,
+                drawLineWithStyle(gc, xAxis, yAxis, series,
                         isHorizontal);
             }
         }
@@ -506,24 +508,28 @@ public class LineSeries extends Series implements ILineSeries {
      * removed.
      */
     private static void drawLine(GC gc, Axis xAxis, Axis yAxis,
-            double[] xseries, double[] yseries, boolean isHorizontal) {
+            ArrayList<XYdata> series, boolean isHorizontal) {
         double xLower = xAxis.getRange().lower;
         double xUpper = xAxis.getRange().upper;
         double yLower = yAxis.getRange().lower;
         double yUpper = yAxis.getRange().upper;
 
-        int prevX = xAxis.getPixelCoordinate(xseries[0], xLower, xUpper);
-        int prevY = yAxis.getPixelCoordinate(yseries[0], yLower, yUpper);
+        
+        XYdata p = series.get(0);
+        int prevX = xAxis.getPixelCoordinate(p.x, xLower, xUpper);
+        int prevY = yAxis.getPixelCoordinate(p.y, yLower, yUpper);
 
         boolean drawVerticalLine = false;
         int verticalLineYLower = 0;
         int verticalLineYUpper = 0;
 
-        for (int i = 0; i < xseries.length - 1; i++) {
-            int x = xAxis.getPixelCoordinate(xseries[i + 1], xLower, xUpper);
-            int y = yAxis.getPixelCoordinate(yseries[i + 1], yLower, yUpper);
+        for (int i = 0; i < series.size() - 1; i++) { // TODO optimize
+        	p = series.get(i + 1);
+        	
+            int x = xAxis.getPixelCoordinate(p.x, xLower, xUpper);
+            int y = yAxis.getPixelCoordinate(p.y, yLower, yUpper);
 
-            if (x == prevX && i < xseries.length - 2) {
+            if (x == prevX && i < series.size() - 2) {
                 if (drawVerticalLine) {
                     // extend vertical line
                     verticalLineYLower = Math.min(verticalLineYLower, y);
@@ -586,15 +592,16 @@ public class LineSeries extends Series implements ILineSeries {
      *            true if orientation is horizontal
      */
     private static void drawLineWithStyle(GC gc, Axis xAxis, Axis yAxis,
-            double[] xseries, double[] yseries, boolean isHorizontal) {
+    		ArrayList<XYdata> series, boolean isHorizontal) {
         double xLower = xAxis.getRange().lower;
         double xUpper = xAxis.getRange().upper;
         double yLower = yAxis.getRange().lower;
         double yUpper = yAxis.getRange().upper;
 
         List<Integer> pointList = new ArrayList<>();
-        int prevX = xAxis.getPixelCoordinate(xseries[0], xLower, xUpper);
-        int prevY = yAxis.getPixelCoordinate(yseries[0], yLower, yUpper);
+        XYdata p = series.get(0);
+        int prevX = xAxis.getPixelCoordinate(p.x, xLower, xUpper);
+        int prevY = yAxis.getPixelCoordinate(p.y, yLower, yUpper);
 
         // add initial point
         addPoint(pointList, prevX, prevY, isHorizontal);
@@ -603,11 +610,12 @@ public class LineSeries extends Series implements ILineSeries {
         int verticalLineYLower = 0;
         int verticalLineYUpper = 0;
 
-        for (int i = 0; i < xseries.length - 1; i++) {
-            int x = xAxis.getPixelCoordinate(xseries[i + 1], xLower, xUpper);
-            int y = yAxis.getPixelCoordinate(yseries[i + 1], yLower, yUpper);
+        for (int i = 0; i < series.size() - 1; i++) { // TODO optimize
+            p = series.get(i + 1);
+            int x = xAxis.getPixelCoordinate(p.x, xLower, xUpper);
+            int y = yAxis.getPixelCoordinate(p.y, yLower, yUpper);
 
-            if (x == prevX && i < xseries.length - 2) {
+            if (x == prevX && i < series.size() - 2) {
                 if (drawVerticalLine) {
                     // extend vertical line
                     verticalLineYLower = Math.min(verticalLineYLower, y);
@@ -713,41 +721,52 @@ public class LineSeries extends Series implements ILineSeries {
             Axis yAxis) {
 
         // get x and y series
-        double[] xseries = compressor.getCompressedXSeries();
-        double[] yseries = compressor.getCompressedYSeries();
-        int[] indexes = compressor.getCompressedIndexes();
+    	ArrayList<XYdata>  series  = compressor.getCompressedSeries();
+        ArrayList<Integer> indexes = compressor.getCompressedIndexes();
         if (xAxis.isValidCategoryAxis()) {
             boolean isValidStackSeries = isValidStackSeries();
-            for (int i = 0; i < xseries.length; i++) {
-                xseries[i] = indexes[i];
+            int i = 0;
+            for (Integer idx : indexes) {
+            	if (i >= series.size()) break; // TODO needed?
+            	double x,y;
+                x = idx;
                 if (isValidStackSeries) {
-                    yseries[i] = stackSeries[indexes[i]];
+                    y = stackSeries[idx];
+                } else {
+                	y = series.get(i).y;
                 }
+                series.set(i, new XYdata(x, y));
+                i++;
             }
         }
 
         // draw symbol and label
-        for (int i = 0; i < xseries.length; i++) {
+        int i = 0;
+        for (Integer idx : indexes) {
+            if (i >= series.size()) break; // TODO needed?
+//        for (int i = 0; i < series.size(); i++) {
             Color color;
-            if (symbolColors.length > indexes[i]) {
-                color = symbolColors[indexes[i]];
+            if (symbolColors.length > idx) {
+                color = symbolColors[idx];
             } else {
                 color = getSymbolColor();
             }
+            XYdata p = series.get(i);
             int h, v;
             if (xAxis.isHorizontalAxis()) {
-                h = xAxis.getPixelCoordinate(xseries[i]);
-                v = yAxis.getPixelCoordinate(yseries[i]);
+                h = xAxis.getPixelCoordinate(p.x);
+                v = yAxis.getPixelCoordinate(p.y);
             } else {
-                v = xAxis.getPixelCoordinate(xseries[i]);
-                h = yAxis.getPixelCoordinate(yseries[i]);
+                v = xAxis.getPixelCoordinate(p.x);
+                h = yAxis.getPixelCoordinate(p.y);
             }
             if (getSymbolType() != PlotSymbolType.NONE) {
                 drawSeriesSymbol(gc, h, v, color);
             }
-            seriesLabel.draw(gc, h, v, yseries[i], indexes[i], SWT.BOTTOM);
-            xErrorBar.draw(gc, h, v, xAxis, indexes[i]);
-            yErrorBar.draw(gc, h, v, yAxis, indexes[i]);
+            seriesLabel.draw(gc, h, v, p.y, idx, SWT.RIGHT, SWT.TOP);
+            xErrorBar.draw(gc, h, v, xAxis, idx);
+            yErrorBar.draw(gc, h, v, yAxis, idx);
+            i++;
         }
     }
 

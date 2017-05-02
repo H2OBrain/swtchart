@@ -8,6 +8,8 @@ package org.swtchart.internal.compress;
 
 import java.util.ArrayList;
 
+import org.swtchart.internal.series.XYdata;
+
 /**
  * A compressor for line series data.
  */
@@ -47,42 +49,42 @@ public class CompressLineSeries extends Compress {
     private boolean isPrevOutOfRange;
 
     /*
-     * @see Compress#addNecessaryPlots(ArrayList, ArrayList, ArrayList)
+     * @see Compress#addNecessaryPlots(ArrayList, ArrayList)
      */
     @Override
-    protected void addNecessaryPlots(ArrayList<Double> xList,
-            ArrayList<Double> yList, ArrayList<Integer> indexList) {
-
+    protected void addNecessaryPlots(ArrayList<XYdata> list, ArrayList<Integer> indexList) {
         isPrevOutOfRange = true;
 
-        for (int i = 0; i < xSeries.length && i < ySeries.length; i++) {
-            STATE state = getState(i);
+        int i = 0;
+        XYdata pn1 = null; //series.get(0);
+        for (XYdata p : series) {
+            STATE state = getState(i, p, pn1);
 
             switch (state) {
             case SteppingOutOfYRange:
-                addToList(xList, yList, indexList, xSeries[i], ySeries[i], i);
+                addToList(list, indexList, p.x, p.y, i);
                 break;
             case SteppingOverYRange:
             case SteppingInRange:
             case SteppingInXRange:
-                addToList(xList, yList, indexList, xSeries[i - 1],
-                        ySeries[i - 1], i - 1);
-                addToList(xList, yList, indexList, xSeries[i], ySeries[i], i);
+                addToList(list, indexList, pn1.x,
+                        pn1.y, i - 1);
+                addToList(list, indexList, p.x, p.y, i);
                 break;
             case SteppingOverXRange:
             case SteppingOutOfXRange:
-                addToList(xList, yList, indexList, xSeries[i - 1],
-                        ySeries[i - 1], i - 1);
-                addToList(xList, yList, indexList, xSeries[i], ySeries[i], i);
-                i = xSeries.length;
+                addToList(list, indexList, pn1.x,
+                        pn1.y, i - 1);
+                addToList(list, indexList, p.x, p.y, i);
+                i = series.size();
                 break;
             case SteppingOutOfRange:
-                addToList(xList, yList, indexList, xSeries[i], ySeries[i], i);
-                i = xSeries.length;
+                addToList(list, indexList, p.x, p.y, i);
+                i = series.size();
                 break;
             case InRangeAgain:
-                if (!isInSameGridAsPrevious(xSeries[i], ySeries[i])) {
-                    addToList(xList, yList, indexList, xSeries[i], ySeries[i],
+                if (!isInSameGridAsPrevious(p.x, p.y)) {
+                    addToList(list, indexList, p.x, p.y,
                             i);
                 }
                 break;
@@ -91,22 +93,34 @@ public class CompressLineSeries extends Compress {
             default:
                 break;
             }
+            pn1 = p;
+            i++;
         }
     }
 
     /**
      * Gets the state for each plot.
-     * 
      * @param index
      *            the index for plot
+     * @param p
+     *            the series point at the current index
+     * @param pn1
+     *            the series point at the last index
      * @return the state of plot for the given index
      */
-    private STATE getState(int index) {
+    private STATE getState(int index, XYdata p, XYdata pn1) {
+//        XYdata p = series.get(index);
+//        XYdata pn1;
+//        if (index>0) {
+//        	pn1 = series.get(index - 1);
+//        } else {
+//        	pn1 = null;
+//        }
 
         STATE state;
-
-        if (xLower <= xSeries[index] && xSeries[index] <= xUpper) {
-            if (yLower <= ySeries[index] && ySeries[index] <= yUpper) {
+        
+        if (xLower <= p.x && p.x <= xUpper) {
+            if (yLower <= p.y && p.y <= yUpper) {
                 if (index > 0 && isPrevOutOfRange) {
                     state = STATE.SteppingInRange;
                 } else {
@@ -115,11 +129,11 @@ public class CompressLineSeries extends Compress {
             } else {
                 if (isPrevOutOfRange) {
                     if (index > 0
-                            && ((ySeries[index - 1] < yLower && ySeries[index] > yUpper) || ySeries[index - 1] > yUpper
-                                    && ySeries[index] < yLower)) {
+                            && ((pn1.y < yLower && p.y > yUpper) || pn1.y > yUpper
+                                    && p.y < yLower)) {
                         state = STATE.SteppingOverYRange;
-                    } else if (index > 0 && xSeries[index - 1] < xLower
-                            && xSeries[index] > xLower) {
+                    } else if (index > 0 && pn1.x < xLower
+                            && p.x > xLower) {
                         state = STATE.SteppingInXRange;
                     } else {
                         state = STATE.OutOfRangeAgain;
@@ -131,11 +145,11 @@ public class CompressLineSeries extends Compress {
         } else {
             if (!isPrevOutOfRange) {
                 state = STATE.SteppingOutOfRange;
-            } else if (index > 0 && xSeries[index - 1] < xUpper
-                    && xSeries[index] > xUpper) {
+            } else if (index > 0 && pn1.x < xUpper
+                    && p.x > xUpper) {
                 state = STATE.SteppingOutOfXRange;
-            } else if (index > 0 && xSeries[index - 1] < xLower
-                    && xSeries[index] > xUpper) {
+            } else if (index > 0 && pn1.x < xLower
+                    && p.x > xUpper) {
                 state = STATE.SteppingOverXRange;
             } else {
                 state = STATE.OutOfRangeAgain;
@@ -143,8 +157,8 @@ public class CompressLineSeries extends Compress {
         }
 
         // set flag
-        if (xLower <= xSeries[index] && xSeries[index] <= xUpper
-                && yLower <= ySeries[index] && ySeries[index] <= yUpper) {
+        if (xLower <= p.x && p.x <= xUpper
+                && yLower <= p.y && p.y <= yUpper) {
             isPrevOutOfRange = false;
         } else {
             isPrevOutOfRange = true;

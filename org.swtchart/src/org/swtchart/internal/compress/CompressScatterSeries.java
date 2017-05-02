@@ -8,6 +8,8 @@ package org.swtchart.internal.compress;
 
 import java.util.ArrayList;
 
+import org.swtchart.internal.series.XYdata;
+
 /**
  * A compressor for scatter series data
  */
@@ -20,18 +22,19 @@ public class CompressScatterSeries extends Compress {
     private boolean occupied[][];
 
     /*
-     * @see Compress#addNecessaryPlots(ArrayList, ArrayList, ArrayList)
+     * @see Compress#addNecessaryPlots(ArrayList, ArrayList)
      */
     @Override
-    protected void addNecessaryPlots(ArrayList<Double> xList,
-            ArrayList<Double> yList, ArrayList<Integer> indexList) {
+    protected void addNecessaryPlots(ArrayList<XYdata> list, ArrayList<Integer> indexList) {
 
         if (isLineVisible) {
-            for (int i = 0; i < xSeries.length && i < ySeries.length; i++) {
-                if (!isInSameGridAsPrevious(xSeries[i], ySeries[i])) {
-                    addToList(xList, yList, indexList, xSeries[i], ySeries[i],
+        	int i = 0;
+            for (XYdata p : series) {
+                if (!isInSameGridAsPrevious(p.x, p.y)) {
+                    addToList(list, indexList, p.x, p.y,
                             i);
                 }
+            	i++;
             }
         } else {
             int width = (int) config.getWidthInPixel();
@@ -44,13 +47,16 @@ public class CompressScatterSeries extends Compress {
             // initialize flag
             occupied = new boolean[width][height];
 
-            for (int i = 0; i < xSeries.length && i < ySeries.length; i++) {
-                if (xSeries[i] >= xLower && xSeries[i] <= xUpper
-                        && ySeries[i] >= yLower && ySeries[i] <= yUpper
-                        && !isOccupied(xSeries[i], ySeries[i])) {
-                    addToList(xList, yList, indexList, xSeries[i], ySeries[i],
+        	int i = 0;
+            for (XYdata p : series) {
+//            for (int i = 0; i < xSeries.length && i < ySeries.length; i++) {
+                if (p.x >= xLower && p.x <= xUpper
+                        && p.y >= yLower && p.y <= yUpper
+                        && !isOccupied(p.x, p.y)) {
+                    addToList(list, indexList, p.x, p.y,
                             i);
                 }
+                i++;
             }
         }
     }

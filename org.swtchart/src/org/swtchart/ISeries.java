@@ -6,9 +6,10 @@
  *******************************************************************************/
 package org.swtchart;
 
-import java.util.Date;
+import java.util.ArrayList;
 
 import org.eclipse.swt.graphics.Point;
+import org.swtchart.internal.series.XYdata;
 
 /**
  * Series.
@@ -87,53 +88,43 @@ public interface ISeries {
     boolean isStackEnabled();
 
     /**
-     * Sets the X series.
+     * Sets the series.
      * 
      * @param series
-     *            the X series
+     *            the series
      */
-    void setXSeries(double[] series);
+    void setSeries(ArrayList<XYdata> series);
+    
+    /**
+     * Forces the graph to recalculate it data
+     */
+    void invalidateData();
 
     /**
-     * Sets the Y series.
+     * Gets the series. If the series is not set, empty array will be returned.
      * 
-     * @param series
-     *            the Y series
+     * @return the series
      */
-    void setYSeries(double[] series);
+    ArrayList<XYdata> getSeries();
 
-    /**
-     * Gets the X series. If the X series is not set, empty array will be returned.
-     * 
-     * @return the X series
-     */
-    double[] getXSeries();
 
-    /**
-     * Gets the Y series. If the Y series haven't been set yet, empty array will be
-     * returned.
-     * 
-     * @return the Y series
-     */
-    double[] getYSeries();
+//    /**
+//     * Sets the X date series.
+//     * <p>
+//     * X series and X date series are exclusive. X date series will be cleared by setting
+//     * X series, and vice versa.
+//     * 
+//     * @param series
+//     *            the X date series
+//     */
+//    void setXDateSeries(Date[] series);
 
-    /**
-     * Sets the X date series.
-     * <p>
-     * X series and X date series are exclusive. X date series will be cleared by setting
-     * X series, and vice versa.
-     * 
-     * @param series
-     *            the X date series
-     */
-    void setXDateSeries(Date[] series);
-
-    /**
-     * Gets the X date series.
-     * 
-     * @return the X date series, or empty array if X date series is not set.
-     */
-    Date[] getXDateSeries();
+//    /**
+//     * Gets the X date series.
+//     * 
+//     * @return the X date series, or empty array if X date series is not set.
+//     */
+//    Date[] getXDateSeries();
 
     /**
      * Gets the X axis id.

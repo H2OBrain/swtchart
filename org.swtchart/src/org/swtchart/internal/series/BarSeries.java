@@ -6,6 +6,8 @@
  *******************************************************************************/
 package org.swtchart.internal.series;
 
+import java.util.ArrayList;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
@@ -157,16 +159,19 @@ public class BarSeries extends Series implements IBarSeries {
             return compressedBounds;
         }
 
-        Rectangle[] rs = new Rectangle[xSeries.length];
-        double[] comporessedXSeries = compressor.getCompressedXSeries();
+        Rectangle[] rs = new Rectangle[series.size()];
+        ArrayList<XYdata> compressedSeries = compressor.getCompressedSeries(); // TODO optimize getCompressedSeries for only one axis (here x)
         int cnt = 0;
-        for (int i = 0; i < xSeries.length; i++) {
-			if (cnt < comporessedXSeries.length && comporessedXSeries[cnt] == xSeries[i]) {
+        int i = 0;
+        for (XYdata p : series) {
+        	// TODO optimize
+			if (cnt < compressedSeries.size() && (compressedSeries.get(cnt).x == p.x)) {
 				if (compressedBounds[cnt].width != 0 && compressedBounds[cnt].height != 0) {
 					rs[i] = compressedBounds[cnt];
 				}
 				cnt++;
 			}
+			i++;
         }
         return rs;
     }
@@ -181,28 +186,30 @@ public class BarSeries extends Series implements IBarSeries {
         Axis yAxis = (Axis) chart.getAxisSet().getYAxis(yAxisId);
 
         // get x and y series
-        double[] xseries = compressor.getCompressedXSeries();
-        double[] yseries = compressor.getCompressedYSeries();
-        int[] indexes = compressor.getCompressedIndexes();
+        ArrayList<XYdata>  cseries = compressor.getCompressedSeries();
+        ArrayList<Integer> indexes = compressor.getCompressedIndexes();
         if (xAxis.isValidCategoryAxis()) {
-            for (int i = 0; i < xseries.length; i++) {
-                xseries[i] = indexes[i];
+            for (int i = 0; i < cseries.size(); i++) { // TODO optimize
+            	cseries.set(i, new XYdata(indexes.get(i), cseries.get(i).y));
             }
         }
 
-        Rectangle[] rectangles = new Rectangle[xseries.length];
+        Rectangle[] rectangles = new Rectangle[cseries.size()];
         Range xRange = xAxis.getRange();
         Range yRange = yAxis.getRange();
-        for (int i = 0; i < xseries.length; i++) {
-            int x = xAxis.getPixelCoordinate(xseries[i]);
+        for (int i = 0; i < cseries.size(); i++) {
+            XYdata p = cseries.get(i);
+            Integer idx = indexes.get(i);
+            
+            int x = xAxis.getPixelCoordinate(p.x);
             int y = yAxis
-                    .getPixelCoordinate(isValidStackSeries() ? stackSeries[indexes[i]]
-                            : yseries[i]);
+                    .getPixelCoordinate(isValidStackSeries() ? stackSeries[idx]
+                            : p.y);
             double baseYCoordinate = yAxis.getRange().lower > 0 ? yAxis
                     .getRange().lower : 0;
-            double riserwidth = getRiserWidth(xseries, i, xAxis, xRange.lower,
+            double riserwidth = getRiserWidth(cseries, i, xAxis, xRange.lower,
                     xRange.upper);
-            double riserHeight = Math.abs(yAxis.getPixelCoordinate(yseries[i],
+            double riserHeight = Math.abs(yAxis.getPixelCoordinate(p.y,
                     yRange.lower, yRange.upper)
                     - yAxis.getPixelCoordinate(
                             yAxis.isLogScaleEnabled() ? yRange.lower
@@ -333,8 +340,8 @@ public class BarSeries extends Series implements IBarSeries {
         int lowerPlotMargin;
         int upperPlotMargin;
         if (axis.getDirection() == Direction.X) {
-            double lowerRiserWidth = getRiserWidth(xSeries, 0, axis, minX, maxX);
-            double upperRiserWidth = getRiserWidth(xSeries, xSeries.length - 1,
+            double lowerRiserWidth = getRiserWidth(series, 0, axis, minX, maxX);
+            double upperRiserWidth = getRiserWidth(series, series.size() - 1,
                     axis, minX, maxX);
             lowerPlotMargin = (int) (lowerRiserWidth / 2d + MARGIN_AT_MIN_MAX_PLOT);
             upperPlotMargin = (int) (upperRiserWidth / 2d + MARGIN_AT_MIN_MAX_PLOT);
@@ -359,7 +366,7 @@ public class BarSeries extends Series implements IBarSeries {
      * Gets the riser width.
      *
      * @param series
-     *            the X series
+     *            the series
      * @param index
      *            the series index
      * @param xAxis
@@ -370,25 +377,31 @@ public class BarSeries extends Series implements IBarSeries {
      *            the max value of range
      * @return the raiser width in pixels
      */
-    private int getRiserWidth(double[] series, int index, Axis xAxis,
+    private int getRiserWidth(ArrayList<XYdata> series, int index, Axis xAxis,
             double min, double max) {
 
         // get two x coordinates
         double upper;
         double lower;
-        if (series.length == 1) {
-            upper = series[0] + 0.5;
-            lower = series[0] - 0.5;
-        } else if (index != series.length - 1
-                && (index == 0 || series[index + 1] - series[index] < series[index]
-                        - series[index - 1])) {
-            upper = series[index + 1];
-            lower = series[index];
+        if (series.size() == 1) {
+        	XYdata p = series.get(0);
+            upper = p.x + 0.5;
+            lower = p.x - 0.5;
         } else {
-            upper = series[index];
-            lower = series[index - 1];
+        	XYdata pn1 = series.get(index - 1);
+        	XYdata p = series.get(index);
+        	XYdata p1 = series.get(index + 1);
+        	if (index != series.size() - 1
+	            && (index == 0 || p1.x - p.x < p.x
+	                        - pn1.x)) {
+	            upper = p1.x;
+	            lower = p.x;
+	        } else {
+	            upper = p.x;
+	            lower = pn1.x;
+	        }
         }
-
+        
         if (barWidthStyle == BarWidthStyle.STRETCHED) {
             
             // get riser width without padding
@@ -446,31 +459,34 @@ public class BarSeries extends Series implements IBarSeries {
         // draw label and error bars
         if (seriesLabel.isVisible() || xErrorBar.isVisible()
                 || yErrorBar.isVisible()) {
-            double[] yseries = compressor.getCompressedYSeries();
-            int[] indexes = compressor.getCompressedIndexes();
+            ArrayList<XYdata> cseries = compressor.getCompressedSeries(); // TODO optimize this function to only get one axis (here y)
+            ArrayList<Integer> indexes = compressor.getCompressedIndexes();
 
+            // TODO optimize
             for (int i = 0; i < rs.length; i++) {
                 seriesLabel.draw(gc, rs[i].x + rs[i].width / 2, rs[i].y
-                        + rs[i].height / 2, yseries[i], indexes[i], SWT.CENTER);
+                        + rs[i].height / 2, cseries.get(i).y, indexes.get(i), SWT.CENTER, SWT.CENTER);
 
                 int h, v;
+                int idx  = indexes.get(i);
+                XYdata p = series.get(idx);
                 if (xAxis.isHorizontalAxis()) {
                     if (xAxis.isCategoryEnabled()) {
                         h = rs[i].x + rs[i].width / 2;
                     } else {
-                        h = xAxis.getPixelCoordinate(xSeries[indexes[i]]);
+                        h = xAxis.getPixelCoordinate(p.x);
                     }
-                    v = yAxis.getPixelCoordinate(ySeries[indexes[i]]);
+                    v = yAxis.getPixelCoordinate(p.y);
                 } else {
                     if (xAxis.isCategoryEnabled()) {
                         v = rs[i].y + rs[i].height / 2;
                     } else {
-                        v = xAxis.getPixelCoordinate(xSeries[indexes[i]]);
+                        v = xAxis.getPixelCoordinate(p.x);
                     }
-                    h = yAxis.getPixelCoordinate(ySeries[indexes[i]]);
+                    h = yAxis.getPixelCoordinate(p.y);
                 }
-                xErrorBar.draw(gc, h, v, xAxis, indexes[i]);
-                yErrorBar.draw(gc, h, v, yAxis, indexes[i]);
+                xErrorBar.draw(gc, h, v, xAxis, idx);
+                yErrorBar.draw(gc, h, v, yAxis, idx);
             }
         }
     }

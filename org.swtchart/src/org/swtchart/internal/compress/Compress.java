@@ -8,6 +8,8 @@ package org.swtchart.internal.compress;
 
 import java.util.ArrayList;
 
+import org.swtchart.internal.series.XYdata;
+
 /**
  * A base class for compressor providing default implementations.
  */
@@ -28,20 +30,14 @@ public abstract class Compress implements ICompress {
     /** the flag indicating whether the data is compressed */
     protected boolean compressed;
 
-    /** the source X series to be compressed */
-    protected double[] xSeries = null;
+    /** the source series to be compressed */
+    protected ArrayList<XYdata> series = null;
 
-    /** the source Y series to be compressed */
-    protected double[] ySeries = null;
-
-    /** the compressed X series */
-    protected transient double[] compressedXSeries = null;
-
-    /** the compressed Y series */
-    protected transient double[] compressedYSeries = null;
+    /** the compressed series */
+    protected transient ArrayList<XYdata> compressedSeries = null;
 
     /** the compressed series indexes */
-    protected transient int[] compressedIndexes = null;
+    protected transient ArrayList<Integer> compressedIndexes = null;
 
     /** the lower value of x range */
     protected double xLower;
@@ -68,74 +64,35 @@ public abstract class Compress implements ICompress {
     private long heightInPixel;
 
     /*
-     * @see ICompress#setXSeries(double[])
+     * @see ICompress#setSeries(double[])
      */
-    public void setXSeries(double[] xSeries) {
-        if (xSeries == null) {
+    public void setSeries(ArrayList<XYdata> series) {
+        if (series == null) {
             return;
         }
 
-        double[] copiedSeries = new double[xSeries.length];
-        System.arraycopy(xSeries, 0, copiedSeries, 0, xSeries.length);
-
-        this.xSeries = copiedSeries;
-        compressedXSeries = copiedSeries;
-        compressedIndexes = new int[xSeries.length];
-        for (int i = 0; i < xSeries.length; i++) {
-            compressedIndexes[i] = i;
+        this.series = series;
+        compressedSeries = series;
+        compressedIndexes = new ArrayList<>(series.size()); // TODO optimize..
+        for (int i = 0; i < series.size(); i++) {
+            compressedIndexes.add(i);
         }
 
         compressed = false;
     }
 
     /*
-     * @see ICompress#setYSeries(double[])
+     * @see ICompress#getCompressedSeries()
      */
-    public void setYSeries(double[] ySeries) {
-        if (ySeries == null) {
-            return;
-        }
-
-        double[] copiedSeries = new double[ySeries.length];
-        System.arraycopy(ySeries, 0, copiedSeries, 0, ySeries.length);
-
-        this.ySeries = copiedSeries;
-        compressedYSeries = copiedSeries;
-
-        compressed = false;
-    }
-
-    /*
-     * @see ICompress#getCompressedXSeries()
-     */
-    public double[] getCompressedXSeries() {
-        double[] copiedSeries = new double[compressedXSeries.length];
-        System.arraycopy(compressedXSeries, 0, copiedSeries, 0,
-                compressedXSeries.length);
-
-        return copiedSeries;
-    }
-
-    /*
-     * @see ICompress#getCompressedYSeries()
-     */
-    public double[] getCompressedYSeries() {
-        double[] copiedSeries = new double[compressedYSeries.length];
-        System.arraycopy(compressedYSeries, 0, copiedSeries, 0,
-                compressedYSeries.length);
-
-        return copiedSeries;
+    public ArrayList<XYdata> getCompressedSeries() {
+        return compressedSeries;
     }
 
     /*
      * @see ICompress#getCompressedIndexes()
      */
-    public int[] getCompressedIndexes() {
-        int[] copiedSeries = new int[compressedIndexes.length];
-        System.arraycopy(compressedIndexes, 0, copiedSeries, 0,
-                compressedIndexes.length);
-
-        return copiedSeries;
+    public ArrayList<Integer> getCompressedIndexes() {
+        return compressedIndexes;
     }
 
     /*
@@ -144,7 +101,7 @@ public abstract class Compress implements ICompress {
     final public boolean compress(CompressConfig compressConfig) {
 
         if ((compressConfig.equals(prevConfig) && compressed)
-                || xSeries == null || ySeries == null) {
+                || series == null || series.size() == 0) {
             return false;
         }
 
@@ -166,21 +123,11 @@ public abstract class Compress implements ICompress {
         previousXGridIndex = -1;
         previousYGridIndex = -1;
 
-        ArrayList<Double> xList = new ArrayList<>();
-        ArrayList<Double> yList = new ArrayList<>();
-        ArrayList<Integer> indexList = new ArrayList<>();
+        compressedSeries = new ArrayList<>();
+        compressedIndexes = new ArrayList<>();
 
         // add necessary plots to the array
-        addNecessaryPlots(xList, yList, indexList);
-
-        compressedXSeries = new double[xList.size()];
-        compressedYSeries = new double[yList.size()];
-        compressedIndexes = new int[indexList.size()];
-        for (int i = 0; i < xList.size(); i++) {
-            compressedXSeries[i] = xList.get(i);
-            compressedYSeries[i] = yList.get(i);
-            compressedIndexes[i] = indexList.get(i);
-        }
+        addNecessaryPlots(compressedSeries, compressedIndexes);
 
         compressed = true;
 
@@ -190,23 +137,19 @@ public abstract class Compress implements ICompress {
     /**
      * Adds the necessary plots.
      * 
-     * @param xList
-     *            the array in which x coordinate for necessary plot is stored
-     * @param yList
-     *            the array in which y coordinate for necessary plot is stored
+     * @param list
+     *            the list to store the XY coordinate
      * @param indexList
      *            the array in which series index for necessary plot is stored
      */
-    abstract protected void addNecessaryPlots(ArrayList<Double> xList,
-            ArrayList<Double> yList, ArrayList<Integer> indexList);
+    abstract protected void addNecessaryPlots(
+    		ArrayList<XYdata> cseries, ArrayList<Integer> indexList);
 
     /**
      * Adds the given coordinate to list.
      * 
-     * @param xList
-     *            the list to store the X coordinate
-     * @param yList
-     *            the list to store the Y coordinate
+     * @param list
+     *            the list to store the XY coordinate
      * @param indexList
      *            the list to store the series index
      * @param x
@@ -216,10 +159,9 @@ public abstract class Compress implements ICompress {
      * @param index
      *            the series index
      */
-    protected void addToList(ArrayList<Double> xList, ArrayList<Double> yList,
-            ArrayList<Integer> indexList, double x, double y, int index) {
-        xList.add(x);
-        yList.add(y);
+    protected void addToList(ArrayList<XYdata> list, ArrayList<Integer> indexList,
+    		double x, double y, int index) {
+        list.add(new XYdata(x, y));
         indexList.add(index);
     }
 

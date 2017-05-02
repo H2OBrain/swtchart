@@ -6,47 +6,36 @@
  *******************************************************************************/
 package org.swtchart.internal.compress;
 
+import java.util.ArrayList;
+
+import org.swtchart.internal.series.XYdata;
+
 /**
  * A Compressor.
  */
 public interface ICompress {
 
     /**
-     * Gets the compressed X series
+     * Gets the compressed series
      * 
-     * @return the compressed X series
+     * @return the compressed series
      */
-    public abstract double[] getCompressedXSeries();
-
-    /**
-     * Gets the compressed Y series
-     * 
-     * @return the compressed Y series
-     */
-    public abstract double[] getCompressedYSeries();
+    public abstract ArrayList<XYdata> getCompressedSeries();
 
     /**
      * Gets the compressed series indexes
      * 
      * @return the compressed series indexes
      */
-    public abstract int[] getCompressedIndexes();
+    public abstract ArrayList<Integer> getCompressedIndexes();
 
     /**
-     * Sets X series which have to be sorted.
+     * Sets series which have to be sorted.
      * 
-     * @param xSeries
-     *            the X series
+     * @param series
+     *            the series
      */
-    public abstract void setXSeries(double[] xSeries);
-
-    /**
-     * sets the Y series
-     * 
-     * @param ySeries
-     *            the Y series
-     */
-    public abstract void setYSeries(double[] ySeries);
+    public abstract void setSeries(ArrayList<XYdata> series);
 
     /**
      * Ignores the points which are in the same grid as the previous point.
