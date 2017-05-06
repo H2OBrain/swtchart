@@ -8,9 +8,9 @@ package org.swtchart.internal.series;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
@@ -112,11 +112,11 @@ public class SeriesSet implements ISeriesSet {
      * @see ISeriesSet#getSeries()
      */
     public ISeries[] getSeries() {
-        Set<String> keys = seriesMap.keySet();
-        ISeries[] series = new ISeries[keys.size()];
+        Collection<Series> values = seriesMap.values();
+        ISeries[] series = new ISeries[values.size()];
         int i = 0;
-        for (String key : keys) {
-            series[i++] = seriesMap.get(key);
+        for (Series value : values) {
+            series[i++] = value;
         }
         return series;
     }

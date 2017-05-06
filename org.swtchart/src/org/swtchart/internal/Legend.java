@@ -7,6 +7,7 @@
 package org.swtchart.internal;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -210,6 +211,10 @@ public class Legend extends Composite implements ILegend, PaintListener {
      */
     private ISeries[] sort(ISeries[] seriesArray) {
 
+    	List<ISeries> sa = Arrays.asList(seriesArray);
+    	Collections.reverse(sa);
+    	seriesArray = (ISeries[])sa.toArray();
+    		
         // create a map between axis id and series list
         Map<Integer, List<ISeries>> map = new HashMap<>();
         for (ISeries series : seriesArray) {

@@ -11,7 +11,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.wb.swt.SWTResourceManager;
 import org.swtchart.LineStyle;
 
 /**
@@ -37,10 +37,11 @@ public final class Util {
         }
 
         // create GC
-        int ARBITRARY_WIDTH = 10;
-        int ARBITRARY_HEIGHT = 10;
-        Image image = new Image(Display.getCurrent(), ARBITRARY_WIDTH,
-                ARBITRARY_HEIGHT);
+        Image image = SWTResourceManager.getImage("arb_img");
+//        int ARBITRARY_WIDTH = 10;
+//        int ARBITRARY_HEIGHT = 10;
+//        Image image = new Image(Display.getCurrent(),
+//        					ARBITRARY_WIDTH, ARBITRARY_HEIGHT);
         GC gc = new GC(image);
 
         // get extent of text with given font
@@ -53,7 +54,7 @@ public final class Util {
         }
 
         // dispose resources
-        image.dispose();
+//        image.dispose();
         gc.dispose();
 
         return p;

@@ -146,7 +146,7 @@ public class AxisTick implements IAxisTick {
      */
     public void setTickMarkStepHint(int tickMarkStepHint) {
         if (tickMarkStepHint < MIN_GRID_STEP_HINT) {
-            this.tickMarkStepHint = DEFAULT_TICK_MARK_STEP_HINT;
+            this.tickMarkStepHint = (int)Math.ceil(MIN_GRID_STEP_HINT); //DEFAULT_TICK_MARK_STEP_HINT;
         } else {
             this.tickMarkStepHint = tickMarkStepHint;
         }

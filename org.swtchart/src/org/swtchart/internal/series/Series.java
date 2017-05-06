@@ -205,6 +205,10 @@ abstract public class Series implements ISeries {
 //        isDateSeries = false;
 
         if (series.size() == 0) {
+//        	minX = 0;
+//        	maxX = 1;
+//        	minY = 0;
+//        	maxY = 1;
             return;
         }
 
