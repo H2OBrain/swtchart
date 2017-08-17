@@ -48,4 +48,13 @@ public class Range {
     public String toString() {
         return "lower=" + lower + ", upper=" + upper;
     }
+
+	public boolean isValid() {
+        if (Double.isNaN(lower) || Double.isNaN(upper)
+                || Double.isInfinite(lower)
+                || Double.isInfinite(upper) || lower > upper) {
+            return false;
+        }
+		return true;
+	}
 }
