@@ -44,6 +44,11 @@ public class PlotArea extends Composite implements PaintListener, IPlotArea {
 
     /** the default background color */
     private static final int DEFAULT_BACKGROUND = SWT.COLOR_WHITE;
+    
+    /** debug variable */
+    @SuppressWarnings("unused")
+	private long draw_count = 0;
+
 
     /**
      * Constructor.
@@ -151,6 +156,10 @@ public class PlotArea extends Composite implements PaintListener, IPlotArea {
                 listener.paintControl(e);
             }
         }
+        
+        draw_count++;
+//        gc.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
+//        gc.drawText("draw count: "+draw_count, 10, 10);
         
         e.gc.setBackground(oldBackground);
     }

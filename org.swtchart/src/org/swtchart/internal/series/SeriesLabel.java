@@ -104,6 +104,9 @@ public class SeriesLabel implements ISeriesLabel {
      * @see ISeriesLabel#getForeground()
      */
     public Color getForeground() {
+    	if ((color == null) || color.isDisposed()) {
+    		color = SWTResourceManager.getColor(DEFAULT_COLOR);
+    	}
         return color;
     }
 

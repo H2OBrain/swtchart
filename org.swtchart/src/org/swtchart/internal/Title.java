@@ -175,6 +175,9 @@ public class Title implements ITitle, PaintListener {
      * @return the foreground color
      */
     public Color getForeground() {
+        if ((foreground == null) || foreground.isDisposed()) {
+            foreground = SWTResourceManager.getColor(DEFAULT_FOREGROUND);
+        }
         return foreground;
     }
 

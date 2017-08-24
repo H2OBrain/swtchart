@@ -60,7 +60,7 @@ public class Grid implements IGrid {
      * @see IGrid#getForeground()
      */
     public Color getForeground() {
-        if (color.isDisposed()) {
+        if ((color == null) || color.isDisposed()) {
             color = SWTResourceManager.getColor(DEFAULT_FOREGROUND);
         }
         return color;

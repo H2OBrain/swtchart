@@ -87,7 +87,7 @@ public class AxisTickMarks implements PaintListener {
      * @return the foreground color
      */
     protected Color getForeground() {
-        if (foreground.isDisposed()) {
+        if ((foreground == null) || foreground.isDisposed()) {
             foreground = SWTResourceManager.getColor(DEFAULT_FOREGROUND);
         }
         return foreground;
@@ -115,7 +115,7 @@ public class AxisTickMarks implements PaintListener {
             if (axis.isHorizontalAxis()) {
                 heightHint = Axis.MARGIN + TICK_LENGTH;
             } else {
-                widthHint = TICK_LENGTH + Axis.MARGIN;
+                widthHint  = TICK_LENGTH + Axis.MARGIN;
             }
         }
     }

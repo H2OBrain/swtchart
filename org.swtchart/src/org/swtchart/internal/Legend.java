@@ -56,10 +56,10 @@ public class Legend extends Composite implements ILegend, PaintListener {
     private static final int LINE_WIDTH = 2;
 
     /** the default foreground */
-    private static final Color DEFAULT_FOREGROUND = SWTResourceManager.getColor(SWT.COLOR_BLACK);
+    private static final int DEFAULT_FOREGROUND = SWT.COLOR_BLACK;
 
     /** the default background */
-    private static final Color DEFAULT_BACKGROUND = SWTResourceManager.getColor(SWT.COLOR_WHITE);
+    private static final int DEFAULT_BACKGROUND = SWT.COLOR_WHITE;
 
     /** the default font */
     private Font defaultFont;
@@ -92,8 +92,8 @@ public class Legend extends Composite implements ILegend, PaintListener {
 //                DEFAULT_FONT_SIZE, SWT.NORMAL);
         defaultFont = SWTResourceManager.getFont("Tahoma", DEFAULT_FONT_SIZE, SWT.NORMAL);
         setFont(defaultFont);
-        setForeground(DEFAULT_FOREGROUND);
-        setBackground(DEFAULT_BACKGROUND);
+//        setForeground(DEFAULT_FOREGROUND);
+//        setBackground(DEFAULT_BACKGROUND);
         addPaintListener(this);
     }
 
@@ -137,7 +137,7 @@ public class Legend extends Composite implements ILegend, PaintListener {
     @Override
     public void setForeground(Color color) {
         if (color == null) {
-            super.setForeground(DEFAULT_FOREGROUND);
+            super.setForeground(SWTResourceManager.getColor(DEFAULT_FOREGROUND));
         } else {
             super.setForeground(color);
         }
@@ -149,7 +149,7 @@ public class Legend extends Composite implements ILegend, PaintListener {
     @Override
     public void setBackground(Color color) {
         if (color == null) {
-            super.setBackground(DEFAULT_BACKGROUND);
+            super.setBackground(SWTResourceManager.getColor(DEFAULT_BACKGROUND));
         } else {
             super.setBackground(color);
         }
@@ -431,7 +431,7 @@ public class Legend extends Composite implements ILegend, PaintListener {
         }
 
         GC gc = e.gc;
-        gc.setFont(getFont());
+        //gc.setFont(getFont());
         ISeries[] seriesArray = chart.getSeriesSet().getSeries();
         if (seriesArray.length == 0) {
             return;
@@ -444,6 +444,8 @@ public class Legend extends Composite implements ILegend, PaintListener {
         gc.setForeground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
         gc.drawRectangle(0, 0, getSize().x - 1, getSize().y - 1);
 
+//	        Color bg = getBackground();
+//	        Color fg = getForeground();
         // draw content
         for (int i = 0; i < seriesArray.length; i++) {
             if (!seriesArray[i].isVisibleInLegend()) {
@@ -458,9 +460,13 @@ public class Legend extends Composite implements ILegend, PaintListener {
 
             // draw label
             String label = getLegendLabel(seriesArray[i]);
-            gc.setBackground(getBackground());
+//	            gc.setBackground(bg);
+//	            gc.setForeground(fg);
+            gc.setForeground(getBackground());
             gc.setForeground(getForeground());
             gc.drawText(label, r.x + SYMBOL_WIDTH + MARGIN * 2, r.y, true);
         }
+//	        bg.dispose();
+//	        fg.dispose();
     }
 }

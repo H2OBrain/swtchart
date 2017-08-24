@@ -155,7 +155,7 @@ public class AxisTickLabels implements PaintListener {
 	 * @return the foreground color
 	 */
 	protected Color getForeground() {
-		if (foreground.isDisposed()) {
+		if ((foreground == null) || foreground.isDisposed()) {
 			foreground = SWTResourceManager.getColor(DEFAULT_FOREGROUND);
 		}
 		return foreground;
