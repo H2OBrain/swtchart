@@ -284,6 +284,7 @@ public class Chart extends Composite implements Listener {
         case SWT.Resize:
             updateLayout();
             redraw();
+            update();
             break;
         default:
             break;
